@@ -1,7 +1,9 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
-class Contact {
+class Contact implements Comparable<Contact> {
     private String fullName;
     private String nickname;
     private String address;
@@ -20,20 +22,40 @@ class Contact {
         return fullName;
     }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getAddress() {
         return address;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public List<String> getPhoneNumbers() {
         return new ArrayList<>(phoneNumbers);
+    }
+
+    public void setPhoneNumbers(List<String> phoneNumbers) {
+        this.phoneNumbers = new ArrayList<>(phoneNumbers);
     }
 
     public void addPhoneNumber(String phoneNumber) {
@@ -44,6 +66,11 @@ class Contact {
 
     public void removePhoneNumber(String phoneNumber) {
         phoneNumbers.remove(phoneNumber);
+    }
+
+    @Override
+    public int compareTo(Contact other) {
+        return this.fullName.compareTo(other.fullName);
     }
 
     @Override
@@ -64,19 +91,81 @@ class PhoneBook {
 
     public void addContact(Contact contact) {
         contacts.add(contact);
+        Collections.sort(contacts);
     }
 
     public void removeContact(String fullName) {
         contacts.removeIf(contact -> contact.getFullName().equals(fullName));
     }
 
-    public Contact findContact(String fullName) {
+    public Contact findContactByPhoneNumber(String phoneNumber) {
+        for (Contact contact : contacts) {
+            if (contact.getPhoneNumbers().contains(phoneNumber)) {
+                return contact;
+            }
+        }
+        return null;
+    }
+
+    public void updateContact(String fullName) {
+        Scanner scanner = new Scanner(System.in);
+        Contact contact = findContactByFullName(fullName);
+        if (contact == null) {
+            System.out.println("Contact not found.");
+            return;
+        }
+        
+        System.out.print("Enter new full name (or press Enter to keep current): ");
+        String newFullName = scanner.nextLine();
+        if (!newFullName.isEmpty()) {
+            contact.setFullName(newFullName);
+        }
+
+        System.out.print("Enter new nickname (or press Enter to keep current): ");
+        String newNickname = scanner.nextLine();
+        if (!newNickname.isEmpty()) {
+            contact.setNickname(newNickname);
+        }
+
+        System.out.print("Enter new address (or press Enter to keep current): ");
+        String newAddress = scanner.nextLine();
+        if (!newAddress.isEmpty()) {
+            contact.setAddress(newAddress);
+        }
+
+        System.out.print("Enter new email (or press Enter to keep current): ");
+        String newEmail = scanner.nextLine();
+        if (!newEmail.isEmpty()) {
+            contact.setEmail(newEmail);
+        }
+
+        List<String> newPhoneNumbers = new ArrayList<>();
+        while (true) {
+            System.out.print("Enter new phone number (or 'done' to finish): ");
+            String phoneNumber = scanner.nextLine();
+            if (phoneNumber.equalsIgnoreCase("done")) {
+                break;
+            }
+            newPhoneNumbers.add(phoneNumber);
+        }
+        if (!newPhoneNumbers.isEmpty()) {
+            contact.setPhoneNumbers(newPhoneNumbers);
+        }
+
+        Collections.sort(contacts);
+    }
+
+    public Contact findContactByFullName(String fullName) {
         for (Contact contact : contacts) {
             if (contact.getFullName().equals(fullName)) {
                 return contact;
             }
         }
         return null;
+    }
+
+    public List<Contact> getContacts() {
+        return new ArrayList<>(contacts);
     }
 
     @Override
@@ -89,38 +178,75 @@ class PhoneBook {
     }
 
     public static void main(String[] args) {
-        List<String> phoneNumbers1 = new ArrayList<>();
-        phoneNumbers1.add("0123456789");
-        Contact contact1 = new Contact("Nguyễn Văn A", "Anh A", "123 Đường A, TP.HCM", "anhnva@example.com", phoneNumbers1);
-
-        List<String> phoneNumbers2 = new ArrayList<>();
-        phoneNumbers2.add("0987654321");
-        phoneNumbers2.add("0123456788");
-        Contact contact2 = new Contact("Trần Thị B", "Chị B", "456 Đường B, Hà Nội", "bitran@example.com", phoneNumbers2);
-
+        Scanner scanner = new Scanner(System.in);
         PhoneBook phoneBook = new PhoneBook();
-        phoneBook.addContact(contact1);
-        phoneBook.addContact(contact2);
 
-        System.out.println(phoneBook);
+        while (true) {
+            System.out.println("Phone Book Menu:");
+            System.out.println("1. Add Contact");
+            System.out.println("2. Remove Contact");
+            System.out.println("3. Find Contact by Phone Number");
+            System.out.println("4. Update Contact");
+            System.out.println("5. Display All Contacts");
+            System.out.println("6. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
 
-        // Add a phone number to contact1
-        contact1.addPhoneNumber("0912345678");
-        System.out.println("\nAfter adding a phone number to Nguyễn Văn A:");
-        System.out.println(phoneBook);
-
-        // Remove a phone number from contact2
-        contact2.removePhoneNumber("0123456788");
-        System.out.println("\nAfter removing a phone number from Trần Thị B:");
-        System.out.println(phoneBook);
-
-        // Find a contact
-        Contact foundContact = phoneBook.findContact("Nguyễn Văn A");
-        if (foundContact != null) {
-            System.out.println("\nFound contact:");
-            System.out.println(foundContact);
-        } else {
-            System.out.println("\nContact not found");
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter full name: ");
+                    String fullName = scanner.nextLine();
+                    System.out.print("Enter nickname: ");
+                    String nickname = scanner.nextLine();
+                    System.out.print("Enter address: ");
+                    String address = scanner.nextLine();
+                    System.out.print("Enter email: ");
+                    String email = scanner.nextLine();
+                    List<String> phoneNumbers = new ArrayList<>();
+                    while (true) {
+                        System.out.print("Enter phone number (or 'done' to finish): ");
+                        String phoneNumber = scanner.nextLine();
+                        if (phoneNumber.equalsIgnoreCase("done")) {
+                            break;
+                        }
+                        phoneNumbers.add(phoneNumber);
+                    }
+                    Contact newContact = new Contact(fullName, nickname, address, email, phoneNumbers);
+                    phoneBook.addContact(newContact);
+                    break;
+                case 2:
+                    System.out.print("Enter full name of contact to remove: ");
+                    String nameToRemove = scanner.nextLine();
+                    phoneBook.removeContact(nameToRemove);
+                    break;
+                case 3:
+                    System.out.print("Enter phone number to search: ");
+                    String phoneToSearch = scanner.nextLine();
+                    Contact foundContact = phoneBook.findContactByPhoneNumber(phoneToSearch);
+                    if (foundContact != null) {
+                        System.out.println("Contact found:");
+                        System.out.println(foundContact);
+                    } else {
+                        System.out.println("Contact not found.");
+                    }
+                    break;
+                case 4:
+                    System.out.print("Enter full name of contact to update: ");
+                    String nameToUpdate = scanner.nextLine();
+                    phoneBook.updateContact(nameToUpdate);
+                    break;
+                case 5:
+                    System.out.println("All contacts:");
+                    System.out.println(phoneBook);
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
     }
 }
